@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Presentation Slot Reservation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 20px auto;
+            background: #f9f9f9;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2, h3 {
+            text-align: center;
+        }
+        .message {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            color: #006400;
+        }
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 300px;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+        .grid-container {
+            display: grid;
+            /* Force 5 columns */
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 15px;
+            margin-top: 15px;
+        }
+        .grid-item {
+            background: #f1f1f1;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            text-align: left;
+            /* Enable transition for hover effect */
+            transition: background 0.3s;
+        }
+        /* Hide the default radio button */
+        .grid-item input[type="radio"] {
+            display: none;
+        }
+        /* Style the label as a clickable area */
+        .grid-item label {
+            display: block;
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            cursor: pointer;
+        }
+        /* Hover effect for available slots */
+        .grid-item label.clickable:hover {
+            background: #e0f0ff;
+        }
+        /* Selected available radio style (for custom indicator, if needed) */
+        .grid-item input[type="radio"]:checked + label {
+            background: #cce5ff;
+            border: 1px solid #007bff;
+        }
+        .reserved {
+            color: red;
+        }
+        .available {
+            color: green;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007BFF;
+            color: #fff;
+            font-size: 1em;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .day-section {
+            margin-bottom: 40px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .period-title {
+            margin-top: 20px;
+            text-align: left;
+            font-weight: bold;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Project Presentation Slot Reservation</h1>
+
+    {% if message %}
+        <div class="message">{{ message }}</div>
+    {% endif %}
+
+    <form method="POST">
+        <div>
+            <label for="student_name">Your Name:</label><br>
+            <input type="text" id="student_name" name="student_name" required>
+        </div>
+
+        <h2>Select an Available Time Slot</h2>
+        {% for date, periods in categorized_slots|dictsort %}
+            <div class="day-section">
+                <h2>{{ date }}</h2>
+
+                {% if periods.morning %}
+                    <div class="period-title">Morning Slots (9:00 - 13:00)</div>
+                    <div class="grid-container">
+                        {% for slot, reserved_by in periods.morning.items() %}
+                            <div class="grid-item">
+                                {% if reserved_by %}
+                                    <!-- Reserved: still show radio for consistency, but disabled -->
+                                    {% set slot_id = 'slot_' ~ slot|replace(' ', '_') %}
+                                    <input type="radio" id="{{ slot_id }}" name="slot" value="{{ slot }}" disabled>
+                                    <label for="{{ slot_id }}">
+                                        <span class="reserved">{{ slot }}<br>Reserved by: {{ reserved_by }}</span>
+                                    </label>
+                                {% else %}
+                                    {% set slot_id = 'slot_' ~ slot|replace(' ', '_') %}
+                                    <input type="radio" id="{{ slot_id }}" name="slot" value="{{ slot }}">
+                                    <label for="{{ slot_id }}" class="clickable">
+                                        <span class="available">{{ slot }}<br>Available</span>
+                                    </label>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if periods.afternoon %}
+                    <div class="period-title">Afternoon Slots (15:00 - 18:00)</div>
+                    <div class="grid-container">
+                        {% for slot, reserved_by in periods.afternoon.items() %}
+                            <div class="grid-item">
+                                {% if reserved_by %}
+                                    {% set slot_id = 'slot_' ~ slot|replace(' ', '_') %}
+                                    <input type="radio" id="{{ slot_id }}" name="slot" value="{{ slot }}" disabled>
+                                    <label for="{{ slot_id }}">
+                                        <span class="reserved">{{ slot }}<br>Reserved by: {{ reserved_by }}</span>
+                                    </label>
+                                {% else %}
+                                    {% set slot_id = 'slot_' ~ slot|replace(' ', '_') %}
+                                    <input type="radio" id="{{ slot_id }}" name="slot" value="{{ slot }}">
+                                    <label for="{{ slot_id }}" class="clickable">
+                                        <span class="available">{{ slot }}<br>Available</span>
+                                    </label>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
